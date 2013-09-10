@@ -1,7 +1,14 @@
+/**
+  * Opens a browser instance, asserts the presence of sample DOM elements, 
+  * assert the absence of text in sample DOM elements,
+  * closes browser instance
+  *
+*/
+
 //open browser instance
 _openBrowser();
 
-//hit test site location, forceRefresh
+//hit test site location, forceRefresh = true
 _navigateTo(%URI%, true);
 
 //assert links exist
