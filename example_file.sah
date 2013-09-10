@@ -1,8 +1,13 @@
 /**
-  * Opens a browser instance, asserts the presence of sample DOM elements, 
-  * assert the absence of text in sample DOM elements,
-  * closes browser instance
-  *
+  * Steps in example:
+  * 1.) Open browser process
+  * 2.) Navigate to a URI and force page refresh
+  * 3.) Assert the existence of various page elements
+  * 4.) Test login/logout capabilities of page
+  * 5.) Delete a cookie set by login process
+  * 6.) Close window instance
+  * 7.) Close browser process
+  * 
 */
 
 //open browser instance
@@ -15,16 +20,15 @@ _navigateTo(%URI%, true);
 _assertExists(_link("Getting Started"), "'Getting Started' link is missing.");
 _assertExists(_link("Help"), "'Help' link is missing.");
 _assertExists(_link("About"), "'About' link is missing.");
-_assertExists(_link("Logout"), "'Logout' link is missing.");
 
 //assert span section header
-_assertExists(_span("My Span"), "'My Span' missing.");
+_assertExists(_span("My Span"), "Span with text 'My Span' is missing.");
 
 //assert section h2 header
-_assertExists(_heading2("My H2"), "'My H2' header is missing.");
+_assertExists(_heading2("My H2"), "Header with text 'My H2' is missing.");
 
 //assert section h3 header
-_assertExists(_heading3("My H3"), "'My H3' header is missing.");
+_assertExists(_heading3("My H3"), "Header with text 'My H3' is missing.");
 
 //assert divs with an id present
 _assertExists(_div("traffic_report51_chart"), "traffic_report51_chart section is missing.");
@@ -37,5 +41,64 @@ _assertNotContainsText("No Data Available", _div("real_time_traffic32"), "Sectio
 _assertNotContainsText("No Data Available", _div("real_time_traffic41"), "Section is missing data.");
 _assertNotContainsText("No Data Available", _div("real_time_traffic42"), "Section is missing data.");
 
+//vars for result of assertExists on sign in/out buttons
+$btnLoginExists = _assertExists(_button("Sign In")));
+$btnLogoutExists = _assertExists(_button("Log Out")));
+
+//vars for result of assertExists on username and pass fields
+$usernameFieldExists = assertExists(_input("usernameInputID"), "'Username' input field does not exist.");
+$passwordFieldExists = assertExists(_input("passwordInputID")), "'Password' input field does not exist.");
+
+//manipulate the 'sign in' button if it exists. check 
+//results of submit with no cred error, submit with invalid cred error, 
+//and submit with valid cred (success)
+if ($btnLoginExists === true) {
+	
+	//first try to submit login w/ NO credentials to establish error message
+	_click(_button("Sign In"));
+
+	//if user and pass fields exist then manipulate sign in with credentials 
+	if ($usernameFieldExists === true && $passwordFieldExists === true) {
+	
+		//enter an invalid test username
+		_setValue(_input("login_username")), "invalidUser");
+
+		//enter an invalid test password
+		_setValue(_input("login_password", _in(_div("modals"))), "invalidPass");
+
+		//try to submit login w/ INVALID credentials to establish error message
+		//clicks button with text "Sign In" within a div with id "modals"
+		_click(_button("Sign In"));
+
+		//enter a valid test username
+		_setValue(_input("login_username")), "validUser");
+
+		//enter a valid test password
+		_setValue(_input("login_password")), "validPass");
+
+		//try to submit login w/ VALID credentials to establish success message
+		//clicks button with text "Sign In" within a div with id "modals"
+		_click(_button("Sign In"));
+
+		//variable that would store state of login success
+		$isLoggedIn;
+
+		if ($isLoggedIn === true && $btnLogoutExists === true) {
+
+			//click logout link
+			_click(_link("Log Out"));
+
+		}
+
+	}
+
+}
+
+//clear login cookie (if set)
+_deleteCookie(name);
+
 //close browser instance
+_closeWindow();
+
+//close browser process
 _closeBrowser();
