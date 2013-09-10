@@ -33,9 +33,9 @@ _assertExists(_div("data_status62"), "data_status62 section is missing.");
 _assertExists(_div("modals"), "modals section is missing.");
 
 //assert that "no data" message is not present in divs by id
-_assertNotContainsText("No Data Available", _div("real_time_traffic32", "Section is missing data.");
-_assertNotContainsText("No Data Available", _div("real_time_traffic41", "Section is missing data.");
-_assertNotContainsText("No Data Available", _div("real_time_traffic42", "Section is missing data.");
+_assertNotContainsText("No Data Available", _div("real_time_traffic32"), "Section is missing data.");
+_assertNotContainsText("No Data Available", _div("real_time_traffic41"), "Section is missing data.");
+_assertNotContainsText("No Data Available", _div("real_time_traffic42"), "Section is missing data.");
 
 //close browser instance
 _closeBrowser();
