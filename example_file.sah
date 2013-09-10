@@ -1,0 +1,34 @@
+//open browser instance
+_openBrowser();
+
+//hit test site location, forceRefresh
+_navigateTo(%URI%, true);
+
+//assert links exist
+_assertExists(_link("Getting Started"), "'Getting Started' link is missing.");
+_assertExists(_link("Help"), "'Help' link is missing.");
+_assertExists(_link("About"), "'About' link is missing.");
+_assertExists(_link("Logout"), "'Logout' link is missing.");
+
+//assert span section header
+_assertExists(_span("My Span"), "'My Span' missing.");
+
+//assert section h2 header
+_assertExists(_heading2("My H2"), "'My H2' header is missing.");
+
+//assert section h3 header
+_assertExists(_heading3("My H3"), "'My H3' header is missing.");
+
+//assert divs with an id present
+_assertExists(_div("traffic_report51_chart"), "traffic_report51_chart section is missing.");
+_assertExists(_div("banner61"), "banner61 section is missing.");
+_assertExists(_div("data_status62"), "data_status62 section is missing.");
+_assertExists(_div("modals"), "modals section is missing.");
+
+//assert that "no data" message is not present in divs by id
+_assertNotContainsText("No Data Available", _div("real_time_traffic32", "Section is missing data.");
+_assertNotContainsText("No Data Available", _div("real_time_traffic41", "Section is missing data.");
+_assertNotContainsText("No Data Available", _div("real_time_traffic42", "Section is missing data.");
+
+//close browser instance
+_closeBrowser();
