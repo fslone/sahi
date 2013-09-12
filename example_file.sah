@@ -1,104 +1,316 @@
-/**
-  * Steps in example:
-  * 1.) Open browser process
-  * 2.) Navigate to a URI and force page refresh
-  * 3.) Assert the existence of various page elements
-  * 4.) Test login/logout capabilities of page
-  * 5.) Delete a cookie set by login process
-  * 6.) Close window instance
-  * 7.) Close browser process
-  * 
+/** 
+  * Integration and interaction testing of TrafficIQ Lite 
+  * via sahi. Generated documentation can be created via jsDOC.
+  *
+  * @author Fleming Slone [fleming.slone@brickstream.com]
+  * @see http://sahi.co.in/
+  *
 */
 
-//open browser instance
-_openBrowser();
+/** 
+  * @namespace trafficIQLite 
+  *
+*/
+$trafficIQLite = {
 
-//hit test site location, forceRefresh = true
-_navigateTo(%URI%, true);
+	sahi: {}
 
-//assert links exist
-_assertExists(_link("Getting Started"), "'Getting Started' link is missing.");
-_assertExists(_link("Help"), "'Help' link is missing.");
-_assertExists(_link("About"), "'About' link is missing.");
+};
 
-//assert span section header
-_assertExists(_span("My Span"), "Span with text 'My Span' is missing.");
+/** 
+  * @namespace trafficIQLite.sahi Object to namespace all of the sahi test functions.
+  *
+*/
+$trafficIQLite.sahi = {
 
-//assert section h2 header
-_assertExists(_heading2("My H2"), "Header with text 'My H2' is missing.");
-
-//assert section h3 header
-_assertExists(_heading3("My H3"), "Header with text 'My H3' is missing.");
-
-//assert divs with an id present
-_assertExists(_div("traffic_report51_chart"), "traffic_report51_chart section is missing.");
-_assertExists(_div("banner61"), "banner61 section is missing.");
-_assertExists(_div("data_status62"), "data_status62 section is missing.");
-_assertExists(_div("modals"), "modals section is missing.");
-
-//assert that "no data" message is not present in divs by id
-_assertNotContainsText("No Data Available", _div("real_time_traffic32"), "Section is missing data.");
-_assertNotContainsText("No Data Available", _div("real_time_traffic41"), "Section is missing data.");
-_assertNotContainsText("No Data Available", _div("real_time_traffic42"), "Section is missing data.");
-
-//vars for result of assertExists on sign in/out buttons
-$btnLoginExists = _assertExists(_button("Sign In")));
-$btnLogoutExists = _assertExists(_button("Log Out")));
-
-//vars for result of assertExists on username and pass fields
-$usernameFieldExists = assertExists(_input("usernameInputID"), "'Username' input field does not exist.");
-$passwordFieldExists = assertExists(_input("passwordInputID")), "'Password' input field does not exist.");
-
-//manipulate the 'sign in' button if it exists. check 
-//results of submit with no cred error, submit with invalid cred error, 
-//and submit with valid cred (success)
-if ($btnLoginExists === true) {
+	/** 
+	  * Login to the admin area
+	  *
+	*/
+	adminLogin: function ($username, $password) {
 	
-	//first try to submit login w/ NO credentials to establish error message
-	_click(_button("Sign In"));
+		//establish vars to hold username and pass field assertExists results
+		$usernameFieldLoc = _textbox("login_username"),
+		$passwordFieldLoc = _password("login_password"),
+		$signInLoc = _submit("Sign In"),
+		$logoutLoc = _link("logout13", _in(_div("drop_down12")));
 
-	//if user and pass fields exist then manipulate sign in with credentials 
-	if ($usernameFieldExists === true && $passwordFieldExists === true) {
-	
 		//enter an invalid test username
-		_setValue(_input("login_username")), "invalidUser");
+		_setValue($usernameFieldLoc, $username);
 
 		//enter an invalid test password
-		_setValue(_input("login_password", _in(_div("modals"))), "invalidPass");
+		_setValue($passwordFieldLoc, $password);
 
-		//try to submit login w/ INVALID credentials to establish error message
-		//clicks button with text "Sign In" within a div with id "modals"
-		_click(_button("Sign In"));
+		//click sign in button
+		_click($signInLoc);
 
-		//enter a valid test username
-		_setValue(_input("login_username")), "validUser");
+	},
 
-		//enter a valid test password
-		_setValue(_input("login_password")), "validPass");
+	/** 
+	  * Select the company and site to display after admin login
+	  * 
+	  * @param {String} $company Name of the target company.
+	  * @param {String} $site Name of the target site.
+	  *
+	*/
+	selectCompanySite: function ($company, $site) {
 
-		//try to submit login w/ VALID credentials to establish success message
-		//clicks button with text "Sign In" within a div with id "modals"
-		_click(_button("Sign In"));
+		//select company in dropdown
+		_click(_link($company, _in(_div("select_site151"))));
 
-		//variable that would store state of login success
-		$isLoggedIn;
+		//select site in dropdown
+		_click(_link($site, _in(_div("select_site151"))));
 
-		if ($isLoggedIn === true && $btnLogoutExists === true) {
+		//wait to make sure modal gets closed properly
+		_wait(1000);
 
-			//click logout link
-			_click(_link("Log Out"));
+		//click to open site
+		_click(_submit("Open Site"));
 
-		}
+	},
+
+	/** 
+	  * Assert presence of header sections
+	  *
+	*/
+	assertHeader: function () {
+
+		//assert header div 
+		_assertExists(_div("row-fluid header"));
+		
+		//assert logo & product header
+		_assertExists(_image("logo-mark.png"));
+		_assertExists(_span("TrafficIQ Lite", _in(_div("row-fluid header"))), "'TrafficIQ Lite' header is missing.");
+
+		//assert/test "open time" dropdown menu
+		_assertExists(_label("Company", _in(_div("row-fluid header"))));
+		_assertExists(_submit("Brickstream QA lab"));
+		
+		//assert/test "open time" dropdown menu
+		_assertExists(_label("Site", _in(_div("row-fluid header"))));
+		_assertExists(_submit("Alex Site"));
+
+		//assert/test "open time" dropdown menu
+		_assertExists(_label("Open Time", _in(_div("row-fluid header"))));
+		_assertExists(_submit("9:00 AM"));
+		
+		//assert logout link presence
+		_assertExists(_link("Logout", _in(_div("row-fluid header"))), "logout link is missing.");
+
+	},
+
+	/** 
+	  * Test interaction components of header
+	  *
+	*/
+	testHeader: function () {
+
+		//test company select dropdown menu
+		_click(_submit("btn dropdown-toggle[1]"));
+		_click(_submit("btn dropdown-toggle[1]"));
+
+		//test site select dropdown menu
+
+		//test open time dropdown menu
+		_click(_submit("btn dropdown-toggle[5]"));
+		_click(_submit("btn dropdown-toggle[5]"));
+
+		//test help menu toggling
+		_click(_link(0));
+		_assertExists(_list("dropdown-menu pull-right"));
+		_assertExists(_link("Getting Started", _in(_div("drop_down12"))));
+		_assertExists(_link("Help", _in(_div("drop_down12"))));
+		_assertExists(_link("About", _in(_div("drop_down12"))));
+		_click(_link(0));
+
+	},
+
+	/** 
+	  * Assert presence of top data sections 
+	  *
+	*/
+	assertTopData: function () {
+
+		//assert top data area elements
+		_assertExists(_div("Customer Activity Today"), "'Customer Activity' header is missing.");
+		_assertExists(_div("current_date_time31"), "current_date_time31 section is missing.");
+		_assertExists(_heading3("Exits"), "'Exits' h3 header is missing.");
+		_assertExists(_heading3("Arrivals"), "'Arrivals' h3 header is missing.");
+		_assertExists(_heading3("Occupancy"), "'Occupancy' h3 header is missing.");
+		_assertExists(_div("real_time_traffic32"), "real_time_traffic32 section is missing.");
+		_assertExists(_div("chart_real_time_traffic32"), "chart_real_time_traffic32 section is missing.");
+		_assertExists(_div("real_time_traffic41"), "real_time_traffic41 section is missing.");
+		_assertExists(_div("chart_real_time_traffic41"), "chart_real_time_traffic41 section is missing.");
+		_assertExists(_div("real_time_traffic42"), "real_time_traffic42 section is missing.");
+		_assertExists(_div("chart_real_time_traffic42"), "chart_real_time_traffic42 section is missing.");
+
+		//assert that "no data" messages are not present in data area fields
+		_assertNotContainsText("No Data Available", _div("real_time_traffic32"), "Section is missing Occupancy data.");
+		_assertNotContainsText("No Data Available", _div("real_time_traffic41"), "Section is missing Arrivals data.");
+		_assertNotContainsText("No Data Available", _div("real_time_traffic42"), "Section is missing Exits data.");
+		_assertNotContainsText("No Data Available", _div("traffic_report51_chart"), "There is no data available for the requested time period.");
+
+	},
+
+	/** 
+	  * Assert presence of historical activity graph sections
+	  *
+	*/
+	assertGraphSections: function () {
+
+		//assert header for historical activity graph report
+		_assertExists(_heading2("Historical Customer Activity"),  "'Historical Customer Activity' header is missing.");
+
+		//assert graph filter area elements
+		_assertExists(_div("report_filters"));
+		_assertExists(_label("Start", _in(_div("report_filters"))));
+		_assertExists(_textbox("traffic_report51_start_date"), "traffic_report51_start_date section is missing.");
+		_assertExists(_label("End", _in(_div("report_filters"))));
+		_assertExists(_textbox("traffic_report51_end_date"), "traffic_report51_end_date section is missing.");
+		_assertExists(_label("Time Period", _in(_div("report_filters"))));
+		_assertExists(_link("Hour"), _in(_div("report_filters")));
+
+		//assert graph chart elements
+		_assertExists(_div("traffic_report51"), "traffic_report51 section is missing.");
+		_assertExists(_div("traffic_report51_chart"), "traffic_report51_chart section is missing.");
+
+	},
+
+	/** 
+	  * Test the graph report based for a given start/end date range
+	  * @param {String} $startDateText Starting date for report generation date range.
+	  * @param {String} $endDateText Ending date for report generation date range.
+	  *
+	*/
+	testGraph: function ($startDateText, $endDateText){
+		
+		//set locations for start/end date text inputs, view button
+		$startDateLoc = _textbox("traffic_report51_start_date"),
+		$endDateLoc = _textbox("traffic_report51_end_date"),
+		$viewButtonLoc = _link("View");
+		
+		//set start/end dates in inputs and click to view
+		_setValue($startDateLoc, $startDateText);
+		_setValue($endDateLoc, $endDateText);
+		_click($viewButtonLoc);
+
+		//assert presence of view buttons
+		_assertExists(_div("btn-toolbar"), "btn-toolbar section is missing.");
+		
+	},
+
+	/** 
+	  * Test the graph report view buttons
+	  *
+	*/
+	testGraphViewButtons: function () {
+
+		//click to export chart to csv button and close associated modal
+		_click(_link(46));
+		_click(_submit("Close[1]"));
+
+		//click view chart as bar graph button
+		_click(_link(48));
+
+		//view chart as table button
+		_click(_link(49));
+
+		//view chart as line graph button
+		_click(_link(47));
+
+	},
+
+	/** 
+	  * Assert presence of page footer
+	  *
+	*/
+	assertFooter: function () {
+
+		//assert footer images/labels
+		_assertExists(_image("logo_powered_by_brickstream.png"));
+		_assertExists(_div("Copyright 2013 Brickstream. All Rights Reserved."));
+		_assertExists(_span("Last Updated:"));
+
+	},
+
+	/** 
+	  * Logout out of admin section
+	  *
+	*/
+	adminLogout: function () {
+
+		//click logout link
+		_click(_link("Logout"));
 
 	}
 
-}
+};
 
-//clear login cookie (if set)
-_deleteCookie(name);
 
-//close browser instance
-_closeWindow();
 
-//close browser process
-_closeBrowser();
+
+
+/** Namespace and invoke the full test suite */
+(function () {
+
+	//hit test URI location and force refresh
+	_navigateTo(%%TARGETURI%%, true);
+
+	//try to sign in with blank user/pass
+	$trafficIQLite.sahi.adminLogin('','');
+	_assertExists(_heading4('Login Error', _in(_div("login"))), "Login error message not found.");
+	_click(__button("×"));
+
+	//try to sign in with invalid user/pass
+	$trafficIQLite.sahi.adminLogin('invalidUser','invalidPass');
+	_assertExists(_heading4('Login Error', _in(_div("login"))), "Login error message not found.");
+	_click(__button("×"));
+
+	//sign in with valid user/pass
+	$trafficIQLite.sahi.adminLogin('test','test');
+
+	//select company and site from modal dropdown
+	$trafficIQLite.sahi.selectCompanySite('Brickstream QA lab','Alex Site');
+
+	//assert header sections
+	$trafficIQLite.sahi.assertHeader();
+
+	//assert top data report sections
+	$trafficIQLite.sahi.assertTopData();
+
+	//assert presence of graph sections
+	$trafficIQLite.sahi.assertGraphSections();
+
+	//test footer
+	$trafficIQLite.sahi.assertFooter();
+
+	//test header sections
+	$trafficIQLite.sahi.testHeader();
+
+	//test graph report with invalid dates in the future
+	$trafficIQLite.sahi.testGraph("1/1/2050","1/2/2050");
+	_assertExists(_div("There is no data available for the requested time period."), "Invalid date range error not given.");
+
+	//test graph report with invalid start date after end date
+	$trafficIQLite.sahi.testGraph("1/2/2013","1/1/2013");
+
+	//test graph report with valid dates
+	$trafficIQLite.sahi.testGraph("4/1/2013","4/2/2013");
+
+	//test graph view buttons
+	$trafficIQLite.sahi.testGraphViewButtons();
+
+	//logout
+	$trafficIQLite.sahi.adminLogout();
+
+	//clear login cookie
+	_deleteCookie(name);
+
+	//close browser window
+	_closeWindow();
+
+}());
+
+
+
+
